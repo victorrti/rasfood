@@ -11,6 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, ClienteId> {
-    @Query("SELECT c from Cliente WHERE c.clienteId.email = :id OR c.clienteId.cpf = :id")
+    @Query("SELECT c from Cliente c WHERE c.clienteId.email = :id OR c.clienteId.cpf = :id")
     Optional<Cliente> findByEmailOrCpf(@Param("id") final String id);
 }

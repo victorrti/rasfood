@@ -1,5 +1,6 @@
 package com.rasmoo.api.rasfood.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name="cardapio")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class Cardapio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +21,7 @@ public class Cardapio {
     private String descricao;
     private Boolean disponivel;
     private BigDecimal valor;
-    @Column(name="data_de_criacao")
+    @Column(name="data_de_registro")
     private LocalDateTime dataCriacao = LocalDateTime.now();
     @ManyToOne(fetch = FetchType.LAZY)
     private Categoria categoria;
