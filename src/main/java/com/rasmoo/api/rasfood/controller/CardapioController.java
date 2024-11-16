@@ -4,9 +4,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rasmoo.api.rasfood.dto.CardapioDto;
 import com.rasmoo.api.rasfood.entity.Cardapio;
+import com.rasmoo.api.rasfood.entity.Cliente;
 import com.rasmoo.api.rasfood.repository.CardapioRepository;
 import com.rasmoo.api.rasfood.repository.projection.CardapioProjection;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,19 +30,24 @@ public class CardapioController {
     private ObjectMapper objectMapper;
 
     @GetMapping
-    public ResponseEntity<List<Cardapio>> findAll(){
-        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findAll());
+    public ResponseEntity<Page<Cardapio>> findAll(@RequestParam("pagina") Integer pagina,
+                                                  @RequestParam(value = "sort",required = false) Sort.Direction sort,
+                                                  @RequestParam(value = "propriedade",required = false) String propert){
+        Pageable pageable = Objects.nonNull(sort) ?
+                PageRequest.of(pagina,10, Sort.by(sort,propert)) : PageRequest.of(pagina,10);
+
+        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cardapio> findByEmailCpf(@PathVariable("id") final Integer id){
+    public ResponseEntity<Cardapio> findByid(@PathVariable("id") final Integer id){
 
         return cardapioRepository.findById(id)
                 .map(value ->  ResponseEntity.status(HttpStatus.OK).body(value))
                 .orElseGet(() ->  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
 
     }
-    @DeleteMapping("/{id}")
+     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") final Integer id){
 
         Optional<Cardapio> cardapioOptional = cardapioRepository.findById(id);
@@ -48,7 +59,7 @@ public class CardapioController {
 
 
     }
-    @PostMapping()
+   @PostMapping()
     public ResponseEntity<Cardapio> criar( @RequestBody final Cardapio cardapio){
         if(Objects.nonNull(cardapio)){
             return ResponseEntity.status(HttpStatus.CREATED).body(cardapioRepository.save(cardapio));
@@ -70,11 +81,15 @@ public class CardapioController {
 
     }
     @GetMapping("/categoria/{id}/disponivel")
-    public ResponseEntity<List<CardapioProjection>> findAllCardapioByCategoria(@PathVariable("id") final Integer id){
-        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findAllByCategoria(id));
+    public ResponseEntity<Page<CardapioProjection>> findAllCardapioByCategoria(@PathVariable("id") final Integer id,@RequestParam("pagina") Integer pagina){
+        Pageable pageable = PageRequest.of(pagina,10);
+        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findAllByCategoria(id,pageable));
     }
     @GetMapping("/{nome}")
-    public ResponseEntity<List<CardapioDto>> findAllCardapioByCategoria(@PathVariable("id") final String nome){
-        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findByNome(nome));
+    public ResponseEntity<Page<CardapioDto>> findAllCardapioByCategoria(@PathVariable("id") final String nome,@RequestParam("pagina") Integer pagina){
+        Pageable pageable = PageRequest.of(pagina,10);
+        return ResponseEntity.status(HttpStatus.OK).body(cardapioRepository.findByNome(nome,pageable));
     }
+
+
 }
